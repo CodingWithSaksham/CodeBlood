@@ -18,9 +18,6 @@ class QLearningAgent:
 
     def choose_action(self, state):
         """
-        For now, choose the greedy action (can add epsilon-greedy later).
-        """
-         """
         Chooses an action using ε-greedy policy.
         """
         if np.random.rand() < self.epsilon:
