@@ -27,12 +27,12 @@ async def handler(websocket):
             action = data["action_taken"]
             reward = data["reward"]
             done = data["done"]
-            next_state = state  # Here you can adjust if Unity sends next_state separately
+            next_state = state  
 
             # Update Q-table
             agent.update(state, action, reward, next_state)
 
-            # Send next recommended action (greedy for now)
+            # Send next recommended action 
             next_action = agent.choose_action(next_state)
             response = {"next_action": next_action}
             await websocket.send(json.dumps(response))
