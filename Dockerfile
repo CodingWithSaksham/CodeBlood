@@ -13,12 +13,11 @@ COPY requirements.txt .
 RUN pip install --upgrade pip \
   && pip install -r requirements.txt
 
-# Copy Django project files
+# Copy project files
 COPY . .
 
-# Expose port (default Django port)
+# Expose port
 EXPOSE 8000
 
-# Run server
-CMD ["gunicorn", "CodeBlood.wsgi:application", "--bind", "0.0.0.0:8000"]
-
+# Run migrations + start server
+CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && gunicorn CodeBlood.wsgi:application --bind 0.0.0.0:8000"]
