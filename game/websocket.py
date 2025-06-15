@@ -8,16 +8,24 @@ from .q_learning import QLearningAgent
 logger = getLogger("game.websocket")
 agent = QLearningAgent()
 
+prev_player_health = 1000
+prev_boss_health = 1000
+
+
+def compute_reward(prev_player_health, player_health, prev_boss_health, boss_health):
+    # Simple example: positive for boss damage, negative for player damage
+    boss_damage = prev_boss_health - boss_health
+    player_damage = prev_player_health - player_health
+    reward = (boss_damage * 2) - (player_damage * 3)  # weight boss damage higher
+    return reward
+
 
 def state_from_data(data: Dict[str, Any]):
-    """
-    Convert JSON game data into a tuple state for Q-table.
-    """
     return (
-        {"near": 0, "mid": 1, "far": 2}[data.get("distance", "near")],
-        {"low": 0, "mid": 1, "high": 2}[data.get("player_health", "low")],
-        {"low": 0, "mid": 1, "high": 2}[data.get("boss_health", "low")],
-        int(data.get("skill_ready", 0)),
+        data["distance"],
+        data["player_health"],
+        data["boss_health"],
+        data["action_taken"],
     )
 
 
@@ -30,19 +38,28 @@ class RLConsumer(AsyncJsonWebsocketConsumer):
         logger.debug(f"→ disconnect (code={code})")
         await self.disconnect(code=HTTP_200_OK)
 
-    async def receive_json(self, content, **kwargs):
+    async def receive_json(self, content: Dict[str, Any], **kwargs):
+        global prev_boss_health, prev_player_health
         logger.debug(f"← receive_json: {content}")
 
-        # extract RL tuple
         state = state_from_data(content)
-        action = content["action_taken"]
-        reward = content["reward"]
-        done = content["done"]
-        next_state = state  # or computed next_state
+        action = content.get("action_taken")
 
-        agent.update(state, action, reward, next_state)
+        assert action is not None, "Action is None!"
 
-        # send back JSON automatically
-        next_action = agent.choose_action(next_state)
-        await self.send_json({"next_action": next_action})
+        reward = compute_reward(
+            content.get("prev_player_health"),
+            content.get("player_health"),
+            content.get("prev_boss_health"),
+            content.get("boss_health"),
+        )
+
+        agent.update(state, action, reward, state)
+        next_action = agent.choose_action(state)
+        # next_state = state  # In this simple case, next_state is same as current
+
+        await self.send_json({"next_action": int(next_action)})
         logger.info(f"Sent response: {{'next_action': {next_action}}}")
+
+        prev_player_health = content.get("player_health")
+        prev_boss_health = content.get("boss_health")

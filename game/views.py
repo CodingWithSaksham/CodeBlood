@@ -1,6 +1,5 @@
+from django.utils import timezone
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
 from .models import Lobby, Player
@@ -14,11 +13,17 @@ class LobbyViewSet(ModelViewSet):
     serializer_class = LobbySerializer
     queryset = Lobby.objects.all()
 
-    @action(detail=True, methods=["POST"])
-    def start(self, request, pk=None):
-        lobby = self.get_object()
+    def perform_destroy(self, instance: Lobby):
+        now = timezone.now()
+        time_elapsed = (now - instance.created_at).total_seconds()
 
-        return Response({"id": lobby.id})
+        player = instance.host
+
+        if time_elapsed > player.high_score:
+            player.high_score = int(time_elapsed)
+            player.save()
+
+        instance.delete()
 
 
 class PlayerViewSet(ModelViewSet):

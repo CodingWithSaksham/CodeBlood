@@ -8,27 +8,26 @@ https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
 """
 
 import os
-
 from django.core.asgi import get_asgi_application
-from django.urls import path
-from django.conf import settings
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
+from django.urls import path
+from django.conf import settings
 
 from game.websocket import RLConsumer
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "CodeBlood.settings")
 
-websocket_app = URLRouter([path("bot/", RLConsumer.as_asgi())])
+django_asgi_app = get_asgi_application()  # <--- create once
 
-if settings.DEBUG:
-    websocket_handler = websocket_app
-else:
-    websocket_handler = AllowedHostsOriginValidator(websocket_app)
+websocket_urlpatterns = [path("bot/", RLConsumer.as_asgi())]
+websocket_app = URLRouter(websocket_urlpatterns)
 
 application = ProtocolTypeRouter(
     {
-        "http": get_asgi_application(),
-        "websocket": websocket_handler,
+        "http": django_asgi_app,
+        "websocket": AllowedHostsOriginValidator(websocket_app)
+        if not settings.DEBUG
+        else websocket_app,
     }
 )
