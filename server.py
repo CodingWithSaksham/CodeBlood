@@ -5,15 +5,19 @@ from q_learning import QLearningAgent
 
 agent = QLearningAgent()
 
+def compute_reward(prev_player_health, player_health, prev_boss_health, boss_health):
+    # Simple example: positive for boss damage, negative for player damage
+    boss_damage = prev_boss_health - boss_health
+    player_damage = prev_player_health - player_health
+    reward = (boss_damage * 2) - (player_damage * 3)  # weight boss damage higher
+    return reward
+
 def state_from_data(data):
-    """
-    Convert JSON game data into a tuple state for Q-table.
-    """
     return (
-        {"near": 0, "mid": 1, "far": 2}[data["distance"]],
-        {"low": 0, "mid": 1, "high": 2}[data["player_health"]],
-        {"low": 0, "mid": 1, "high": 2}[data["boss_health"]],
-        int(data["skill_ready"])
+        data["distance"],
+        data["player_health"],
+        data["boss_health"],
+        data["boss_action_taken"]
     )
 
 async def handler(websocket):
@@ -22,19 +26,22 @@ async def handler(websocket):
             data = json.loads(message)
             print(f"Received data: {data}")
 
-            # Extract state info
             state = state_from_data(data)
-            action = data["action_taken"]
-            reward = data["reward"]
-            done = data["done"]
-            next_state = state  
+            action = data["player_action_taken"]
 
-            # Update Q-table
+            reward = compute_reward(
+                data["prev_player_health"], 
+                data["player_health"], 
+                data["prev_boss_health"], 
+                data["boss_health"]
+            )
+
+            next_state = state  # In this simple case, next_state is same as current
+
             agent.update(state, action, reward, next_state)
-
-            # Send next recommended action 
             next_action = agent.choose_action(next_state)
-            response = {"next_action": next_action}
+
+            response = {"next_action": int(next_action)}
             await websocket.send(json.dumps(response))
             print(f"Sent response: {response}")
 
@@ -44,7 +51,7 @@ async def handler(websocket):
 async def main():
     async with websockets.serve(handler, "localhost", 8000):
         print("Server running on ws://localhost:8000")
-        await asyncio.Future()  # Keep running forever
+        await asyncio.Future()
 
 if __name__ == "__main__":
     asyncio.run(main())
