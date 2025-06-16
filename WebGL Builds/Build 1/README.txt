@@ -1,1 +1,0 @@
-I have yet to add the abilities for the long ranged weapons, but everything before that is sorted
