@@ -14,13 +14,13 @@ function Play() {
       return;
     }
 
-    // First: Create player
     axios
-      .post("http://localhost:8000/api/player", { player_name: name })
+      .post("http://localhost:8000/api/player/", { player_name: name })
       .then((response) => {
         const playerId = response.data.player_id;
 
         setPlayerId(playerId);
+        console.log("Player ID:", playerId);
         localStorage.setItem("playerId", playerId);
         localStorage.setItem("playerName", name);
 

@@ -3,6 +3,8 @@ import websockets
 import json
 from q_learning import QLearningAgent
 
+
+
 agent = QLearningAgent()
 
 def state_from_data(data):
