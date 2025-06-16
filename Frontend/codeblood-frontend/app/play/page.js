@@ -15,9 +15,35 @@ function Play() {
       return;
     }
 
+<<<<<<< Updated upstream
     try {
       const playerRes = await axios.post("http://localhost:8000/api/player/", {
         player_name: name,
+=======
+    axios
+      .post("http://backend:8000/api/player/", { player_name: name })
+      .then((response) => {
+        const playerId = response.data.player_id;
+
+        setPlayerId(playerId);
+        console.log("Player ID:", playerId);
+        localStorage.setItem("playerId", playerId);
+        localStorage.setItem("playerName", name);
+
+        console.log("Player created:", response.data);
+        return axios.post("http://backend:8000/api/lobbies/", {
+          host: playerId,
+        });
+      })
+      .then((response) => {
+        console.log("Lobby created:", response.data);
+
+        window.location.href = "/game";
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Failed to create player or lobby. Please try again.");
+>>>>>>> Stashed changes
       });
 
       const playerId = playerRes.data.player_id;
