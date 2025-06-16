@@ -16,7 +16,7 @@ function Navbar() {
       </Link>
 
       <div className="flex items-center space-x-4">
-        <Link href="/">
+        <Link href="/play">
           <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center">
             <PlayIcon className="mx-2" />
             Play Now

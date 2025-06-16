@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 function Lander() {
   return (
     <div className="min-h-screen flex flex-col text-white pt-14 bg-black">
@@ -16,9 +18,11 @@ function Lander() {
           </p>
         </header>
         <div>
-          <button className="px-16 mx-2 bg-red-600 text-white rounded hover:bg-red-700 py-2 text-center text-lg">
-            Start Battle
-          </button>
+          <Link href="/play">
+            <button className="px-16 mx-2 bg-red-600 text-white rounded hover:bg-red-700 py-2 text-center text-lg">
+              Start Battle
+            </button>
+          </Link>
         </div>
       </div>
       <div className="bg-black text-white font-sans py-12 pt-36 pb-36">
