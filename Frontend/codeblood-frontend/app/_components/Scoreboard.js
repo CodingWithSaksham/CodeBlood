@@ -8,7 +8,7 @@ function Scoreboard() {
   useEffect(() => {
     const fetchScores = async () => {
       try {
-        const response = await fetch("http://backend:8000/api/player");
+        const response = await fetch("http://localhost:8000/api/player");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
