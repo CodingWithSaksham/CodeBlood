@@ -4,17 +4,15 @@ function Lander() {
   return (
     <div className="min-h-screen flex flex-col text-white pt-14 bg-black">
       <div className="bg-black text-white font-sans text-center py-12 pb-24 pt-40">
-        <header className="mb-8">
+        <header className="mb-8 mt-10">
           <h1 className="text-8xl font-bold bg-gradient-to-r from-red-600 to-white text-transparent bg-clip-text">
             CODEBLOOD
           </h1>
-          <p className="text-xl mt-4 py-5">
-            filler sjdncowcnapkco;asmoceapkvmcasdcmpaskmvdcpoaveskmcapvmcp
-          </p>
-          <p className="text-md text-gray-400 ">
-            filler
-            sjdncowcnapkco;asmoceapkvmcasdcmpaskmvdcpoaveskmcapvmcpjsdncosmockc
-            enrvcosmocme cekncsmdcoiamv eofvnvcpsmapn noirvcpsm
+          <p className="text-md text-gray-400 mx-60 mt-7">
+            The fate of the realm hangs by a thread. Choose your champion wisely
+            — each warrior brings a different strength to the battlefield. Step
+            into the shadows, confront what lurks beyond, and prove your worth
+            against the rising darkness.
           </p>
         </header>
         <div>
