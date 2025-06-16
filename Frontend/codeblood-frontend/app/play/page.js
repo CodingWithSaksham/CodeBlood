@@ -1,12 +1,13 @@
 "use client";
 import axios from "axios";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 function Play() {
   const [name, setName] = useState("");
-  const [playerId, setPlayerId] = useState("");
+  const router = useRouter();
 
-  function handleClick(e) {
+  const handleClick = async (e) => {
     e.preventDefault();
 
     if (name.trim() === "") {
@@ -14,31 +15,26 @@ function Play() {
       return;
     }
 
-    axios
-      .post("http://localhost:8000/api/player/", { player_name: name })
-      .then((response) => {
-        const playerId = response.data.player_id;
-
-        setPlayerId(playerId);
-        console.log("Player ID:", playerId);
-        localStorage.setItem("playerId", playerId);
-        localStorage.setItem("playerName", name);
-
-        console.log("Player created:", response.data);
-        return axios.post("http://localhost:8000/api/lobbies/", {
-          host: playerId,
-        });
-      })
-      .then((response) => {
-        console.log("Lobby created:", response.data);
-
-        window.location.href = "/game";
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("Failed to create player or lobby. Please try again.");
+    try {
+      const playerRes = await axios.post("http://localhost:8000/api/player/", {
+        player_name: name,
       });
-  }
+
+      const playerId = playerRes.data.player_id;
+      localStorage.setItem("playerId", playerId);
+      localStorage.setItem("playerName", name);
+
+      await axios.post("http://localhost:8000/api/lobbies/", {
+        host: playerId,
+      });
+
+      router.push(`/play/${playerId}`);
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Something went wrong. Try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col text-center pt-14">
       <div className="bg-black text-white font-sans py-12 pt-36 pb-36">
@@ -49,7 +45,7 @@ function Play() {
           Enter your name to start playing and compete for the top spot!
         </p>
         <div className="flex justify-center">
-          <form className="flex flex-col items-center space-y-4">
+          <div className="flex flex-col items-center space-y-4">
             <input
               type="text"
               value={name}
@@ -59,12 +55,13 @@ function Play() {
             />
 
             <button
+              type="button"
               onClick={handleClick}
               className="px-16 bg-red-600 text-white rounded hover:bg-red-700 py-2 text-center text-lg"
             >
               Start Playing
             </button>
-          </form>
+          </div>
         </div>
       </div>
     </div>
